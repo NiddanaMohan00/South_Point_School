@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fee System</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        .card {
+            border-radius: 12px;
+        }
+        .table th {
+            background-color: #212529;
+            color: white;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+
+<div class="container mt-4">
+
+<!-- HEADER -->
+<h3 class="mb-3"><strong>FEE SYSTEM</strong></h3>
+
+<div class="card p-4 shadow-sm">
+
+<form method="get">
+
+<!-- SESSION -->
+<div class="d-flex align-items-center gap-2 mb-4">
+    <label class="fw-bold">Enter Session:</label>
+
+    <input type="text" name="session"
+           value="{{ session }}"
+           class="form-control w-auto"
+           placeholder="20262027">
+
+    <button class="btn btn-secondary">Add Session</button>
+</div>
+
+<div class="row g-3">
+
+<!-- CLASS -->
+<div class="col-md-4">
+    <label class="form-label">Select Class</label>
+    <select name="class" class="form-select" onchange="this.form.submit()">
+        <option value="">Choose Class</option>
+        {% for cls in unique_classes %}
+            <option value="{{ cls }}" {% if cls == selected_class %}selected{% endif %}>
+                {{ cls }}
+            </option>
+        {% endfor %}
+    </select>
+</div>
+
+<!-- SECTION -->
+<div class="col-md-4">
+    <label class="form-label">Select Section</label>
+    <select name="sec" class="form-select"
+            onchange="this.form.submit()"
+            {% if not selected_class %}disabled{% endif %}>
+        
+        <option value="">Choose Section</option>
+
+        {% for item in class_data %}
+            {% if item.CLASS == selected_class %}
+                <option value="{{ item.SEC }}"
+                    {% if item.SEC == selected_sec %}selected{% endif %}>
+                    {{ item.SEC }}
+                </option>
+            {% endif %}
+        {% endfor %}
+    </select>
+</div>
+
+<!-- BUTTON -->
+<div class="col-md-4 d-flex align-items-end">
+    <button class="btn btn-primary w-100">
+        🔍 Search Students
+    </button>
+</div>
+
+</div>
+
+</form>
+
+<!-- ERROR -->
+{% if error %}
+<div class="alert alert-danger mt-3">
+    {{ error }}
+</div>
+{% endif %}
+
+</div>
+
+<!-- STUDENTS -->
+{% if students %}
+<div class="card mt-4 p-4 shadow-sm">
+
+<form method="get">
+
+<input type="hidden" name="session" value="{{ session }}">
+<input type="hidden" name="class" value="{{ selected_class }}">
+<input type="hidden" name="sec" value="{{ selected_sec }}">
+
+<div class="row g-3">
+
+<!-- STUDENT -->
+<div class="col-md-6">
+    <label class="form-label">Select Student</label>
+    <select name="student" class="form-select">
+        <option value="">Choose Student</option>
+        {% for stu in students %}
+            <option value="{{ stu.CODE }}"
+                {% if stu.CODE == selected_student %}selected{% endif %}>
+                {{ stu.NAME }}
+            </option>
+        {% endfor %}
+    </select>
+</div>
+
+<!-- QUARTERS -->
+<div class="col-md-6">
+    <label class="form-label">Select Quarters</label>
+    <select name="quarter" multiple class="form-select">
+
+        <option value="Quarter1" {% if "Quarter1" in selected_quarters %}selected{% endif %}>Quarter 1</option>
+        <option value="Quarter2" {% if "Quarter2" in selected_quarters %}selected{% endif %}>Quarter 2</option>
+        <option value="Quarter3" {% if "Quarter3" in selected_quarters %}selected{% endif %}>Quarter 3</option>
+        <option value="Quarter4" {% if "Quarter4" in selected_quarters %}selected{% endif %}>Quarter 4</option>
+
+    </select>
+</div>
+
+</div>
+
+<button class="btn btn-success mt-3 w-100">
+    💰 View Fee Details
+</button>
+
+</form>
+
+</div>
+{% endif %}
+
+<!-- FEES -->
+{% if fee_data %}
+<div class="card mt-4 p-4 shadow-sm">
+
+<h5 class="mb-3">
+    👤 {{ fee_data.student.NAME }}
+</h5>
+
+<div class="table-responsive">
+<table class="table table-bordered table-hover">
+
+<thead>
+<tr>
+<th>Quarter</th>
+<th>Fee Name</th>
+<th>Amount (₹)</th>
+</tr>
+</thead>
+
+<tbody>
+
+{% for q, fees in fee_data.fees.items %}
+    {% for f in fees %}
+    <tr>
+        <td>{{ q }}</td>
+        <td>{{ f.FEENAME }}</td>
+        <td>₹{{ f.total_fee }}</td>
+    </tr>
+    {% endfor %}
+{% endfor %}
+
+<!-- SUMMARY -->
+<tr class="table-light">
+<td colspan="2"><strong>Outstanding</strong></td>
+<td>₹{{ fee_data.outstanding }}</td>
+</tr>
+
+<tr class="table-light">
+<td colspan="2"><strong>Late Fee</strong></td>
+<td>₹{{ fee_data.latefee }}</td>
+</tr>
+
+<tr class="table-success">
+<td colspan="2"><strong>Total Payable</strong></td>
+<td><strong>₹{{ fee_data.final_total }}</strong></td>
+</tr>
+
+</tbody>
+
+</table>
+</div>
+
+</div>
+{% endif %}
+
+</div>
+
+</body>
+</html>
